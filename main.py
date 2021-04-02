@@ -8,14 +8,17 @@ pygame.display.set_caption("PAC-MAN")
 FPS = 60                                    # frame per second
 PLAYER_WIDTH, PLAYER_HEIGHT = 50, 50        # size of the player, in case we want to resize later
 
+# background image
+BACKGROUND = pygame.transform.scale(pygame.image.load(
+    os.path.join('assets','background.png')),(400, 400))    
 
-BACKGROUND = pygame.image.load(os.path.join('assets','background.png'))     # background image
 WEAK_DOGE_IMAGE = pygame.image.load(os.path.join('assets','weak.png'))      # Main player image
 WEAK_DOGE = pygame.transform.scale(WEAK_DOGE_IMAGE,(PLAYER_WIDTH,PLAYER_HEIGHT))    # scale
 
 
 def draw_window(weak):
-    WIN.fill((0,0,0))
+    WIN.fill((0, 0, 0))
+    WIN.blit(BACKGROUND,(180, 100))
     WIN.blit(WEAK_DOGE,(weak.x, weak.y))      # here we re-draw the thing with the pos of the rect
     
     pygame.display.update()
