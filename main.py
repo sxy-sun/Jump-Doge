@@ -14,15 +14,27 @@ WEAK_DOGE_IMAGE = pygame.image.load(os.path.join('assets','weak.png'))      # Ma
 WEAK_DOGE = pygame.transform.scale(WEAK_DOGE_IMAGE,(PLAYER_WIDTH,PLAYER_HEIGHT))    # scale
 
 
-def draw_window():
-    #WIN.fill((255,255,255))                 # to change the background color
-    WIN.blit(WEAK_DOGE,(1,1))
+def draw_window(weak):
+    WIN.fill((0,0,0))
+    WIN.blit(WEAK_DOGE,(weak.x, weak.y))      # here we re-draw the thing with the pos of the rect
     
     pygame.display.update()
 
+def weak_movement(keys_pressed,weak):          # the function to move the object
+    if keys_pressed[pygame.K_LEFT]:
+        weak.x -= 50
+    if keys_pressed[pygame.K_RIGHT]:
+        weak.x += 50
+    if keys_pressed[pygame.K_DOWN]:
+        weak.y += 50
+    if keys_pressed[pygame.K_UP]:
+        weak.y -= 50
 
 def main():
+    # create a rectangular to represent the weak_doge to control it
+    weak = pygame.Rect(100, 300, PLAYER_WIDTH, PLAYER_HEIGHT)       
     
+
     clock = pygame.time.Clock()
     run = True
     while run:
@@ -31,7 +43,9 @@ def main():
             if event.type == pygame.QUIT:       # when we want to quit the game
                 run = False
     
-        draw_window()
+        keys_pressed = pygame.key.get_pressed() # detect which key is pressed
+        weak_movement(keys_pressed, weak)       # pass the key to the move function
+        draw_window(weak)                       # draw a new object aka the weak doge
     
     pygame.quit()
     
