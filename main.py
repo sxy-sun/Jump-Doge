@@ -3,22 +3,35 @@ import os
 
 WIDTH, HEIGHT = 800, 600
 FPS = 60                                    # frame per second
-PLAYER_WIDTH, PLAYER_HEIGHT = 50, 50        # size of the player
-vel = 5                                     # velocity of the player
+#PLAYER_WIDTH, PLAYER_HEIGHT = 50, 50        # size of the player
+#vel = 5                                     # velocity of the player
 
-isJump = False                              # is the doge in the jump motion
-jumpCount = 10
+#isJump = False                              # is the doge in the jump motion
+#jumpCount = 10
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("JUMP-DOGE")
 
+
+class character(object):
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.vel = 5
+        self.isJump = False
+        self.jumpCount = 10
+        
+
+player = character(0, HEIGHT - 50, 50, 50)
 
 # background image
 BACKGROUND = pygame.transform.scale(pygame.image.load(
     os.path.join('assets','background.png')),(400, 400))    
 
 PLAYER_IMAGE = pygame.image.load(os.path.join('assets','player.png'))      # Main player image
-PLAYER = pygame.transform.scale(PLAYER_IMAGE,(PLAYER_WIDTH,PLAYER_HEIGHT))    # scale
+PLAYER = pygame.transform.scale(PLAYER_IMAGE,(player.width,player.height))    # scale
 
 
 def draw_window(player):
@@ -31,37 +44,34 @@ def draw_window(player):
 
 def player_movement(keys_pressed, player):          # the function to move the object
     
-    if keys_pressed[pygame.K_LEFT] and player.x > vel:
-        player.x -= vel
-    if keys_pressed[pygame.K_RIGHT] and player.x < WIDTH - PLAYER_WIDTH - vel:
-        player.x += vel
+    if keys_pressed[pygame.K_LEFT] and player.x > player.vel:
+        player.x -= player.vel
+    if keys_pressed[pygame.K_RIGHT] and player.x < WIDTH - player.width - player.vel:
+        player.x += player.vel
     '''
-    if keys_pressed[pygame.K_DOWN] and player.y < HEIGHT - PLAYER_HEIGHT - vel:
-        player.y += vel
+    if keys_pressed[pygame.K_DOWN] and player.y < HEIGHT - PLAYER_HEIGHT - player.vel:
+        player.y += player.vel
     '''
     
     # JUMP
-    global isJump
-    global jumpCount
-    if not (isJump):
+    if not (player.isJump):
         if keys_pressed[pygame.K_UP]:
-            isJump = True
+            player.isJump = True
     else:
-        if jumpCount >= -10:
+        if player.jumpCount >= -10:
             neg = 1
-            if jumpCount < 0:
+            if player.jumpCount < 0:
                 neg = -1
-            player.y -= (jumpCount ** 2) * 0.5 * neg
-            jumpCount -= 1
+            player.y -= (player.jumpCount ** 2) * 0.5 * neg
+            player.jumpCount -= 1
         else:
-            isJump = False
-            jumpCount = 10
-
+            player.isJump = False
+            player.jumpCount = 10
 
 
 def main():
     # create a rectangular to represent the player to control it
-    player = pygame.Rect(0, HEIGHT-PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)       
+    # player = pygame.Rect(0, HEIGHT-PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)       
     
 
     clock = pygame.time.Clock()
