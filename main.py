@@ -6,7 +6,8 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("PAC-MAN")
 
 FPS = 60                                    # frame per second
-PLAYER_WIDTH, PLAYER_HEIGHT = 50, 50        # size of the player, in case we want to resize later
+PLAYER_WIDTH, PLAYER_HEIGHT = 50, 50        # size of the player
+vel = 5                                     # velocity of the player
 
 # background image
 BACKGROUND = pygame.transform.scale(pygame.image.load(
@@ -23,15 +24,16 @@ def draw_window(player):
     
     pygame.display.update()
 
-def player_movement(keys_pressed,player):          # the function to move the object
-    if keys_pressed[pygame.K_LEFT]:
-        player.x -= 50
-    if keys_pressed[pygame.K_RIGHT]:
-        player.x += 50
-    if keys_pressed[pygame.K_DOWN]:
-        player.y += 50
-    if keys_pressed[pygame.K_UP]:
-        player.y -= 50
+
+def player_movement(keys_pressed, player):          # the function to move the object
+    if keys_pressed[pygame.K_LEFT] and player.x > vel:
+        player.x -= vel
+    if keys_pressed[pygame.K_RIGHT] and player.x < WIDTH - PLAYER_WIDTH - vel:
+        player.x += vel
+    if keys_pressed[pygame.K_DOWN] and player.y < HEIGHT - PLAYER_HEIGHT - vel:
+        player.y += vel
+    if keys_pressed[pygame.K_UP] and player.y > vel:
+        player.y -= vel
 
 def main():
     # create a rectangular to represent the player to control it
