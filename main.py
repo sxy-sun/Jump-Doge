@@ -12,30 +12,30 @@ PLAYER_WIDTH, PLAYER_HEIGHT = 50, 50        # size of the player, in case we wan
 BACKGROUND = pygame.transform.scale(pygame.image.load(
     os.path.join('assets','background.png')),(400, 400))    
 
-WEAK_DOGE_IMAGE = pygame.image.load(os.path.join('assets','weak.png'))      # Main player image
-WEAK_DOGE = pygame.transform.scale(WEAK_DOGE_IMAGE,(PLAYER_WIDTH,PLAYER_HEIGHT))    # scale
+PLAYER_IMAGE = pygame.image.load(os.path.join('assets','player.png'))      # Main player image
+PLAYER = pygame.transform.scale(PLAYER_IMAGE,(PLAYER_WIDTH,PLAYER_HEIGHT))    # scale
 
 
-def draw_window(weak):
+def draw_window(player):
     WIN.fill((0, 0, 0))
     WIN.blit(BACKGROUND,(180, 100))
-    WIN.blit(WEAK_DOGE,(weak.x, weak.y))      # here we re-draw the thing with the pos of the rect
+    WIN.blit(PLAYER,(player.x, player.y))      # here we re-draw the thing with the pos of the rect
     
     pygame.display.update()
 
-def weak_movement(keys_pressed,weak):          # the function to move the object
+def player_movement(keys_pressed,player):          # the function to move the object
     if keys_pressed[pygame.K_LEFT]:
-        weak.x -= 50
+        player.x -= 50
     if keys_pressed[pygame.K_RIGHT]:
-        weak.x += 50
+        player.x += 50
     if keys_pressed[pygame.K_DOWN]:
-        weak.y += 50
+        player.y += 50
     if keys_pressed[pygame.K_UP]:
-        weak.y -= 50
+        player.y -= 50
 
 def main():
-    # create a rectangular to represent the weak_doge to control it
-    weak = pygame.Rect(100, 300, PLAYER_WIDTH, PLAYER_HEIGHT)       
+    # create a rectangular to represent the player to control it
+    player = pygame.Rect(100, 300, PLAYER_WIDTH, PLAYER_HEIGHT)       
     
 
     clock = pygame.time.Clock()
@@ -47,8 +47,8 @@ def main():
                 run = False
     
         keys_pressed = pygame.key.get_pressed() # detect which key is pressed
-        weak_movement(keys_pressed, weak)       # pass the key to the move function
-        draw_window(weak)                       # draw a new object aka the weak doge
+        player_movement(keys_pressed, player)       # pass the key to the move function
+        draw_window(player)                       # draw a new object aka the player doge
     
     pygame.quit()
     
