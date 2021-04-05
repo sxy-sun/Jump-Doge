@@ -3,8 +3,8 @@
 Authors: Qingyang Wang, Xiaoyu Sun
 
 * Project Milestone: 4/8
-  * Platform Setup
-    * Able to move around in the viewport
+  * viewport Setup
+    * Player able to jump around in the viewport
     * Has collision detect, player cannot go through floors
   * Add enemy
     * Enemy able to move
