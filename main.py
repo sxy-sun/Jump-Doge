@@ -20,6 +20,11 @@ class character(object):
         self.left = False
         self.right = True
         
+    def draw(self, WIN):
+        if self.left:
+            WIN.blit(PLAYER_LEFT,(self.x, self.y))     
+        elif self.right:
+            WIN.blit(PLAYER_RIGHT,(self.x, self.y))     
 
 player = character(0, HEIGHT - 50, 50, 50)
 
