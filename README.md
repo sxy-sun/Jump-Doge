@@ -28,7 +28,7 @@ Space: shoot
     * Player able to shoot bullets
     * When shooting, there is sound effect
   * Add backgound music - **Done**
-  * Make an executable program 
+
 
 * Project Deadline: 5/4
   * Add enemy
