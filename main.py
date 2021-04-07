@@ -1,12 +1,25 @@
 import pygame
 import os
 
+
 WIDTH, HEIGHT = 800, 600
 FPS = 60     # frame per second
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("JUMP-DOGE")
-
+GREEN = (0,0,255)
+floor_height = 30
+platform_list = [(0, HEIGHT-floor_height,WIDTH, floor_height),(350,100,170,30),(250,175,155,30),
+                (125,350,360,30),(700,100,255, 30),(600,150,105,30),
+                (50,50,100,30),(500,500,100,30),(600,400,190,30),(300,500,175,30)]
+class Platform(pygame.sprite.Sprite):
+    def __init__(self,x,y,w,h):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((w,h))
+        self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 class character(object):
     def __init__(self, x, y, width, height):
@@ -22,9 +35,9 @@ class character(object):
         
     def draw(self, WIN):
         if self.left:
-            WIN.blit(PLAYER_LEFT,(self.x, self.y))     
+            WIN.blit(PLAYER_LEFT,(self.x, self.y - floor_height))     
         elif self.right:
-            WIN.blit(PLAYER_RIGHT,(self.x, self.y))     
+            WIN.blit(PLAYER_RIGHT,(self.x, self.y - floor_height))     
 
 player = character(0, HEIGHT - 50, 50, 50)
 
@@ -61,8 +74,15 @@ def draw_window(player):
     player.draw(WIN)
     for bullet in bullets:
         bullet.draw(WIN)
-        
+    all_sprites = pygame.sprite.Group()
+    platforms = pygame.sprite.Group()
+    for pf in platform_list:
+        p = Platform(*pf)
+        all_sprites.add(p)
+        platforms.add(p)
+    platforms.draw(WIN)
     pygame.display.update()
+    
     
     
 def player_movement(keys_pressed, player):      
@@ -130,7 +150,7 @@ def main():
         keys_pressed = pygame.key.get_pressed()     # detect which key is pressed
         player_movement(keys_pressed, player)       # pass the key to the move function
         draw_window(player)                         # draw a new object aka the player doge
-    
+
     pygame.quit()
     
     
