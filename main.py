@@ -133,12 +133,12 @@ world = World(world_data)
 # draw method, we draw everything here: the window, the player, the bullets, the floor
 def draw_window(player):
     WIN.fill((255, 255, 255))
+    draw_grid() 
     player.draw(WIN)
     enemy1.draw(WIN)
     enemy2.draw(WIN)
     for bullet in bullets:
-        bullet.draw(WIN)
-    draw_grid()    
+        bullet.draw(WIN)   
     world.draw()
     pygame.display.update()
     
