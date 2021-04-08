@@ -30,7 +30,23 @@ class character(object):
         elif self.right:
             WIN.blit(PLAYER_RIGHT,(self.x, self.y))     
 
+
+class enemy(object):
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.vel = 5
+
+        
+    def draw(self, WIN):
+            WIN.blit(ENEMY,(self.x, self.y))   
+              
 player = character(0, HEIGHT - 50, 50, 50)
+enemy1 = enemy(500, 50, 50, 50)
+enemy2 = enemy(200, 450, 50, 50)
+
 
 # Image Load
 PLAYER_IMAGE_LEFT = pygame.image.load(os.path.join('assets','playerL.png'))      # player faces left
@@ -38,7 +54,8 @@ PLAYER_IMAGE_RIGHT = pygame.image.load(os.path.join('assets','playerR.png'))    
 PLAYER_LEFT = pygame.transform.scale(PLAYER_IMAGE_LEFT,(player.width,player.height))    # scale
 PLAYER_RIGHT = pygame.transform.scale(PLAYER_IMAGE_RIGHT,(player.width,player.height))    # scale
 FLOOR_IMAGE = pygame.image.load(os.path.join('assets','dirt.png'))                         # Here is the block for the floor
-
+ENEMY_IMAGE = pygame.image.load(os.path.join('assets','enemy.png'))
+ENEMY = pygame.transform.scale(ENEMY_IMAGE,(enemy1.width,enemy1.height))
 
 # Audio Load
 pygame.mixer.init()    # something we have to do idk why
@@ -98,7 +115,7 @@ class World():
 world_data = [
     [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
     [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
-    [0 ,1 ,1 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
+    [0 ,1 ,1 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,1 ,1 ,1],
     [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
     [0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0],
     [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
@@ -117,6 +134,8 @@ world = World(world_data)
 def draw_window(player):
     WIN.fill((255, 255, 255))
     player.draw(WIN)
+    enemy1.draw(WIN)
+    enemy2.draw(WIN)
     for bullet in bullets:
         bullet.draw(WIN)
     draw_grid()    
