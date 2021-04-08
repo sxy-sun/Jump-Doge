@@ -21,6 +21,7 @@ Space: shoot
 * Project Milestone: 4/8
   * viewport Setup 
     * Floor setup
+    * Add boundaries
   * Character Action
     * Move Left
     * Move Right
