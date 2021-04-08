@@ -20,19 +20,22 @@ Space: shoot
 
 * Project Milestone: 4/8
   * viewport Setup 
-    * Has plaforms where the player can jump onto
-    * Has collision detect, player cannot go through floors
-  * Character Action - **Done**
-    * Player able to jump around in the viewport 
-  * shooting feature -  **Done**
-    * Player able to shoot bullets
-    * When shooting, there is sound effect
-  * Add backgound music - **Done**
+    * Floor setup
+  * Character Action
+    * Move Left
+    * Move Right
+    * Jump
+    * Attack
+  * Attack feature 
+    * Player able to shoot 
+    * Shooting has sound effect
+  * Add backgound music 
+  * Add Enemy
 
 
 * Project Deadline: 5/4
-  * Add enemy
-    * Enemy able to move
+  * Enemy
+    * Enemy able to walk around
     * Enemy can kill the player
   * Points system
     * Able to gain points
