@@ -1,6 +1,6 @@
 import pygame
 import os
-
+vec = pygame.math.Vector2
 
 WIDTH, HEIGHT = 800, 600
 FPS = 60     # frame per second
@@ -27,7 +27,8 @@ class character(object):
         self.rect.y = y
         self.width = width
         self.height = height
-        self.vel = 5
+        self.vel = vec(0,0)
+        self.acc = vec(0,0)
         self.isJump = False
         self.jumpCount = 10
         self.left = False
@@ -38,6 +39,7 @@ class character(object):
             WIN.blit(PLAYER_LEFT,(self.rect.x, self.rect.y - floor_height))     
         elif self.right:
             WIN.blit(PLAYER_RIGHT,(self.rect.x, self.rect.y - floor_height))     
+    
 
 player = character(0, HEIGHT - 50, 50, 50)
 
