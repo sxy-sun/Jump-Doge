@@ -108,6 +108,11 @@ class character(object):
             # check if get to the door
             if pygame.sprite.spritecollide(self, door_group, False):
                 gameover = 1
+
+            # check if lose
+            if pygame.sprite.spritecollide(self, fire_group, False):
+                gameover = -1
+                
             # update locations
             self.rect.x += dx
             self.rect.y += dy
@@ -219,28 +224,6 @@ class FIRE(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(img, (tile_size, tile_size))
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-
-
-def draw_window(player):
-    WIN.fill((255, 255, 255))
-    player.draw(WIN)
-    game_over = player.player_movement(gameover)
-    if game_over == 1:
-        draw_message('YOU WIN!', font, blue, (width // 2) - 50, height // 2)
-        # button 
-        #RESTART = pygame.image.load(os.path.join(
-                #'assets', 'restart.png'))
-        #restart = Button(width // 2 - 50, height // 2 + 50 , RESTART)
-        #if restart.draw():
-        player.reset(0, height - 50, 50, 50)
-        game_over = 0
-           
-    world.draw()
-    door_group.draw(WIN)
-    coin_group.draw(WIN)
-    fire_group.draw(WIN)
-    draw_message('Score: '+str(player.score), font, black, tile_size - 10, 10)
-    pygame.display.update()
 
 
 def create_world(i):
@@ -356,6 +339,7 @@ def reset_game():
     gameover = 0
     door_group.empty()
     coin_group.empty()
+    fire_group.empty()
     num = random.randint(1, 5)
     world_data = create_world(num)
     world = World(world_data)
