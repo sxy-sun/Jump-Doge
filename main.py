@@ -20,7 +20,7 @@ pygame.mixer.init()    # something we have to do idk why
 BGM = pygame.mixer.music.load(os.path.join('assets', 'bgm.mp3'))
 
 # Play the bgm continuously
-# pygame.mixer.music.play(-1)
+pygame.mixer.music.play(-1)
 
 
 coin_group = pygame.sprite.Group()
