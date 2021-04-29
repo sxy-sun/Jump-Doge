@@ -319,7 +319,7 @@ def reset_game():
 
 run = True
 while run:
-    WIN.fill((255, 255, 255))
+    WIN.fill((0,0,0))
     world.draw()
     player.draw(WIN)
     
