@@ -17,7 +17,6 @@ gameover = 0  # 0 means current in the game, 1 means win, -1 means lose
 
 # Audio Load
 pygame.mixer.init()    # something we have to do idk why
-BULLETSOUND = pygame.mixer.Sound(os.path.join('assets', 'bullet.wav'))
 BGM = pygame.mixer.music.load(os.path.join('assets', 'bgm.mp3'))
 
 # Play the bgm continuously
@@ -26,6 +25,7 @@ BGM = pygame.mixer.music.load(os.path.join('assets', 'bgm.mp3'))
 
 coin_group = pygame.sprite.Group()
 door_group = pygame.sprite.Group()
+fire_group = pygame.sprite.Group()
 score = 0
 # font
 font = pygame.font.SysFont('Bauhaus 93', 35)
@@ -33,128 +33,6 @@ font = pygame.font.SysFont('Bauhaus 93', 35)
 black = (0, 0, 0)
 blue = (0,0,255)
 
-
-
-def create_world(i):
-    if i == 1:
-        world_data =  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 3],
-    [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
-    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
-
-    elif i == 2:
-        world_data =  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3],
-    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
-    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
-
-    elif i == 3:
-        world_data =  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [3, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 1, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
-
-    elif i == 4:
-        world_data =  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 3, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
-    
-    elif i == 5:
-        world_data =  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 3, 0],
-    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
-
-    else:
-         world_data =  [
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 3],
-    [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
-    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
-    return world_data
-def draw_grid():
-    for line in range(0, 12):
-        pygame.draw.line(WIN, (0, 0, 0), (0, line * tile_size),
-                         (width, line * tile_size))
-
-    for line in range(0, 16):
-        pygame.draw.line(WIN, (0, 0, 0), (line * tile_size, 0),
-                         (line * tile_size, height))
-
-
-def draw_message(text, font, color, x, y):
-    img = font.render(text, True, color)
-    WIN.blit(img, (x, y))
-
-def reset_game():
-    player.reset(0, height - 50, 50, 50)
-    gameover = 0
-    door_group.empty()
-    coin_group.empty()
-    num = random.randint(1, 5)
-    world_data = create_world(num)
-    world = World(world_data)
-    return world
 
 class character(object):
     def __init__(self, x, y, width, height):
@@ -199,7 +77,7 @@ class character(object):
             # JUMP
             if keys_pressed[pygame.K_UP] and self.isJump == False:
                 self.isJump = True
-                self.velY = -15
+                self.velY = -12
 
             if keys_pressed[pygame.K_UP] == False:
                 self.isJump = False
@@ -241,9 +119,19 @@ class character(object):
                 dy = 0
         return gameover
 
-# Here is the block for the floor
-FLOOR_IMAGE = pygame.image.load(os.path.join('assets', 'dirt.png'))
 
+player = character(0, height - 150, 50, 50)
+# Image Load
+PLAYER_IMAGE_LEFT = pygame.image.load(os.path.join(
+    'assets', 'playerL.png'))      # player faces left
+PLAYER_IMAGE_RIGHT = pygame.image.load(os.path.join(
+    'assets', 'playerR.png'))      # player faces right 
+PLAYER_LEFT = pygame.transform.scale(
+    PLAYER_IMAGE_LEFT, (player.width, player.height))    # scale
+PLAYER_RIGHT = pygame.transform.scale(
+    PLAYER_IMAGE_RIGHT, (player.width, player.height))    # scale
+
+FLOOR_IMAGE = pygame.image.load(os.path.join('assets', 'dirt.png'))
 
 class World():
     def __init__(self, data):
@@ -268,15 +156,16 @@ class World():
                     exit = Exit(col_count * tile_size + tile_size - (tile_size // 2),
                                 row_count * tile_size + tile_size - (tile_size // 2))
                     door_group.add(exit)
+                if tile == 4:
+                    fire = FIRE(col_count * tile_size + tile_size - (tile_size // 2),
+                                row_count * tile_size + tile_size - (tile_size // 2))
+                    fire_group.add(fire)
                 col_count += 1
             row_count += 1
 
     def draw(self):
         for tile in self.tile_list:
             WIN.blit(tile[0], tile[1])
-
-num = random.randint(1, 5)
-world_data = create_world(num)
 
 
 class Button():
@@ -299,6 +188,12 @@ class Button():
         WIN.blit(self.image, self.rect)
         return isClicked
 
+# button 
+RESTART = pygame.image.load(os.path.join(
+                'assets', 'restart.png'))
+restart = Button(width // 2 - 50, height // 2 + 50 , RESTART)
+
+
 class Exit(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -306,6 +201,7 @@ class Exit(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(img, (tile_size, int(tile_size)))
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+
 
 class Coin(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -316,9 +212,17 @@ class Coin(pygame.sprite.Sprite):
         self.rect.center = (x, y)
 
 
+class FIRE(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        img = pygame.image.load((os.path.join('assets', 'fire.png')))
+        self.image = pygame.transform.scale(img, (tile_size, tile_size))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+
 def draw_window(player):
     WIN.fill((255, 255, 255))
-    draw_grid()
     player.draw(WIN)
     game_over = player.player_movement(gameover)
     if game_over == 1:
@@ -331,46 +235,139 @@ def draw_window(player):
         player.reset(0, height - 50, 50, 50)
         game_over = 0
            
-    # enemy1.draw(WIN)
-    # enemy2.draw(WIN)
-    # for bullet in bullets:
-    # bullet.draw(WIN)
     world.draw()
     door_group.draw(WIN)
     coin_group.draw(WIN)
+    fire_group.draw(WIN)
     draw_message('Score: '+str(player.score), font, black, tile_size - 10, 10)
     pygame.display.update()
 
 
-player = character(0, height - 50, 50, 50)
-world = World(world_data)
-# button 
-RESTART = pygame.image.load(os.path.join(
-                'assets', 'restart.png'))
-restart = Button(width // 2 - 50, height // 2 + 50 , RESTART)
+def create_world(i):
+    if i == 1:
+        world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 3],
+    [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
 
-# Image Load
-PLAYER_IMAGE_LEFT = pygame.image.load(os.path.join(
-    'assets', 'playerL.png'))      # player faces left
-PLAYER_IMAGE_RIGHT = pygame.image.load(os.path.join(
-    'assets', 'playerR.png'))      # player faces right
-PLAYER_LEFT = pygame.transform.scale(
-    PLAYER_IMAGE_LEFT, (player.width, player.height))    # scale
-PLAYER_RIGHT = pygame.transform.scale(
-    PLAYER_IMAGE_RIGHT, (player.width, player.height))    # scale
- 
-# ENEMY_IMAGE = pygame.image.load(os.path.join('assets','enemy.png'))
-# ENEMY = pygame.transform.scale(ENEMY_IMAGE,(enemy1.width,enemy1.height))
+    elif i == 2:
+        world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
+
+    elif i == 3:
+        world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [3, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
+
+    elif i == 4:
+        world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0],
+    [0, 3, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
+    
+    elif i == 5:
+        world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 3, 0],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 2, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0],
+    [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
+
+    else:
+         world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 3],
+    [0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
+    return world_data
+
+num = random.randint(1, 5)
+world_data = create_world(1)
+world = World(world_data)
+
+
+def draw_message(text, font, color, x, y):
+    img = font.render(text, True, color)
+    WIN.blit(img, (x, y))
+
+
+def reset_game():
+    player.reset(0, height - 50, 50, 50)
+    gameover = 0
+    door_group.empty()
+    coin_group.empty()
+    num = random.randint(1, 5)
+    world_data = create_world(num)
+    world = World(world_data)
+    return world
 
 
 run = True
 while run:
     WIN.fill((255, 255, 255))
     world.draw()
-    draw_grid()
     player.draw(WIN)
     
-
     if gameover == 0:
         if pygame.sprite.spritecollide(player, coin_group, True):
             player.score += 1
@@ -378,14 +375,21 @@ while run:
     
     door_group.draw(WIN)
     coin_group.draw(WIN)
+    fire_group.draw(WIN)
 
     gameover = player.player_movement(gameover)
 
     if gameover == 1:
         draw_message('YOU WIN!', font, blue, (width // 2) - 50, height // 2)
-        # restart.draw()
         if restart.draw():
-            #print("clicked")
+            restart.clicked = False
+            player.reset(0, height - 50, 50, 50)
+            gameover = 0
+            world = reset_game()
+    
+    if gameover == -1:
+        draw_message('YOU LOSE!', font, blue, (width // 2) - 50, height // 2)
+        if restart.draw():
             restart.clicked = False
             player.reset(0, height - 50, 50, 50)
             gameover = 0
@@ -395,15 +399,6 @@ while run:
         if event.type == pygame.QUIT:
             run = False
     pygame.display.update()
-    # check coins
-    
-
-    # pass the key to the move function
-    # player.player_movement()
-    # draw the world
-    #draw_window(player)
-
-    # pygame.display.update()
 
 
 pygame.quit()
