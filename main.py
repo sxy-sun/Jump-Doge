@@ -1,218 +1,367 @@
 import pygame
 import os
+from pygame.locals import *
+import random
+
+pygame.init()
+
+width = 800
+height = 600
+
+WIN = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Dungeons and Doges")
+
+# define game variables
+tile_size = 50
+gameover = 0  # 0 means current in the game, 1 means win, -1 means lose
+
+# Audio Load
+pygame.mixer.init()    # something we have to do idk why
+BGM = pygame.mixer.music.load(os.path.join('assets', 'bgm.mp3'))
+
+# Play the bgm continuously
+pygame.mixer.music.play(-1)
 
 
-# The game would be 16 column x 12 row
-
-WIDTH, HEIGHT = 800, 600
-tile_size = 50  
-FPS = 60     # frame per second
-
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("JUMP-DOGE")
+coin_group = pygame.sprite.Group()
+door_group = pygame.sprite.Group()
+fire_group = pygame.sprite.Group()
+score = 0
+# font
+font = pygame.font.SysFont('Bauhaus 93', 35)
+# color
+black = (0, 0, 0)
+blue = (0,0,255)
 
 
 class character(object):
     def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
+        self.reset(x, y, width, height)
+
+    def draw(self, WIN):
+        if self.left:
+            WIN.blit(PLAYER_LEFT, (self.rect.x, self.rect.y))
+        elif self.right:
+            WIN.blit(PLAYER_RIGHT, (self.rect.x, self.rect.y))
+   
+    def reset(self, x, y, width, height):
+        img = pygame.image.load((os.path.join('assets', 'playerL.png')))
+        self.image = pygame.transform.scale(img, (width, height))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
         self.width = width
         self.height = height
         self.vel = 5
+        self.velY = 0
         self.isJump = False
         self.jumpCount = 8
         self.left = False
         self.right = True
-        
-    def draw(self, WIN):
-        if self.left:
-            WIN.blit(PLAYER_LEFT,(self.x, self.y))     
-        elif self.right:
-            WIN.blit(PLAYER_RIGHT,(self.x, self.y))     
+        self.score = 0
+
+    # decide the movement of the character
+    def player_movement(self, gameover):
+        keys_pressed = pygame.key.get_pressed()
+        dx = 0
+        dy = 0
+        if gameover == 0:
+            if keys_pressed[pygame.K_LEFT] and self.rect.x > self.vel:
+                dx -= self.vel
+                self.left = True
+                self.right = False
+            elif keys_pressed[pygame.K_RIGHT] and self.rect.x < width - self.width - self.vel:
+                dx += self.vel
+                self.left = False
+                self.right = True
+            # JUMP
+            if keys_pressed[pygame.K_UP] and self.isJump == False:
+                self.isJump = True
+                self.velY = -12
+
+            if keys_pressed[pygame.K_UP] == False:
+                self.isJump = False
+                # self.velY = 0
+
+            # gravity
+            self.velY += 0.5
+            if self.velY > 10:
+                self.velY = 10
+            dy += self.velY
+
+            # check collision with paltforms
+            for tile in world.tile_list:
+                # y direction
+                if tile[1].colliderect(self.rect.x, self.rect.y+dy, self.width, self.height):
+                    # jumping
+                    if self.velY < 0:
+                        dy = tile[1].bottom - self.rect.top
+                        self.velY = 0
+                    # falling
+                    elif self.velY >= 0:
+                        dy = tile[1].top - self.rect.bottom
+                        self.velY = 0
+                # x direction
+                # if tile[1].colliderect(self.rect.x+dx, self.rect.y, self.width, self.height):
+                #     dx = 0
+
+            # check if get to the door
+            if pygame.sprite.spritecollide(self, door_group, False):
+                gameover = 1
+
+            # check if lose
+            if pygame.sprite.spritecollide(self, fire_group, False):
+                gameover = -1
+                
+            # update locations
+            self.rect.x += dx
+            self.rect.y += dy
+            if self.rect.bottom > height:
+                self.rect.bottom = height
+                dy = 0
+            if self.rect.top < 0:
+                self.rect.top = 0
+                dy = 0
+        return gameover
 
 
-class enemy(object):
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.vel = 5
-
-        
-    def draw(self, WIN):
-            WIN.blit(ENEMY,(self.x, self.y))   
-              
-player = character(0, HEIGHT - 50, 50, 50)
-enemy1 = enemy(500, 50, 50, 50)
-enemy2 = enemy(200, 450, 50, 50)
-
-
+player = character(0, height - 110, 50, 50)
 # Image Load
-PLAYER_IMAGE_LEFT = pygame.image.load(os.path.join('assets','playerL.png'))      # player faces left
-PLAYER_IMAGE_RIGHT = pygame.image.load(os.path.join('assets','playerR.png'))      # player faces right
-PLAYER_LEFT = pygame.transform.scale(PLAYER_IMAGE_LEFT,(player.width,player.height))    # scale
-PLAYER_RIGHT = pygame.transform.scale(PLAYER_IMAGE_RIGHT,(player.width,player.height))    # scale
-FLOOR_IMAGE = pygame.image.load(os.path.join('assets','dirt.png'))                         # Here is the block for the floor
-ENEMY_IMAGE = pygame.image.load(os.path.join('assets','enemy.png'))
-ENEMY = pygame.transform.scale(ENEMY_IMAGE,(enemy1.width,enemy1.height))
+PLAYER_IMAGE_LEFT = pygame.image.load(os.path.join(
+    'assets', 'playerL.png'))      # player faces left
+PLAYER_IMAGE_RIGHT = pygame.image.load(os.path.join(
+    'assets', 'playerR.png'))      # player faces right 
+PLAYER_LEFT = pygame.transform.scale(
+    PLAYER_IMAGE_LEFT, (player.width, player.height))    # scale
+PLAYER_RIGHT = pygame.transform.scale(
+    PLAYER_IMAGE_RIGHT, (player.width, player.height))    # scale
 
-# Audio Load
-pygame.mixer.init()    # something we have to do idk why
-BULLETSOUND = pygame.mixer.Sound(os.path.join('assets','bullet.wav'))    
-BGM = pygame.mixer.music.load(os.path.join('assets','bgm.mp3'))    
+FLOOR_IMAGE = pygame.image.load(os.path.join('assets', 'dirt.png'))
 
-# Play the bgm continuously 
-pygame.mixer.music.play(-1) 
-
-# Temp method to show the grid of the viewport, so draw the platform
-def draw_grid():
-    for line in range(0, 12):
-        pygame.draw.line(WIN, (0, 0, 0), (0, line * tile_size), (WIDTH, line * tile_size))
-
-    for line in range(0, 16):
-        pygame.draw.line(WIN, (0, 0, 0), (line * tile_size, 0), (line * tile_size, HEIGHT))
-
-
-# About bullet
-class projectile(object):
-    def __init__(self,x,y,radius,color,facing):
-        self.x = x
-        self.y = y
-        self.radius = radius
-        self.color = color
-        self.facing = facing
-        self.vel = 8 * facing
-
-    def draw(self, WIN):
-        pygame.draw.circle(WIN, self.color, (self.x, self.y), self.radius)
-
-
-# About floor, for this method, we need to pass in the data - the platform we draw
 class World():
-	def __init__(self, data):
-		self.tile_list = []
+    def __init__(self, data):
+        self.tile_list = []
+        row_count = 0
+        for row in data:
+            col_count = 0
+            for tile in row:
+                if tile == 1:
+                    img = pygame.transform.scale(
+                        FLOOR_IMAGE, (tile_size, tile_size))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_count * tile_size
+                    img_rect.y = row_count * tile_size
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
+                if tile == 2:
+                    coin = Coin(col_count * tile_size + (tile_size//2),
+                                row_count * tile_size + (tile_size//2))
+                    coin_group.add(coin)
+                if tile == 3:
+                    exit = Exit(col_count * tile_size + tile_size - (tile_size // 2),
+                                row_count * tile_size + tile_size - (tile_size // 2))
+                    door_group.add(exit)
+                if tile == 4:
+                    fire = FIRE(col_count * tile_size + tile_size - (tile_size // 2),
+                                row_count * tile_size + tile_size - (tile_size // 2))
+                    fire_group.add(fire)
+                col_count += 1
+            row_count += 1
 
-		row_count = 0
-		for row in data:
-			col_count = 0
-			for tile in row:
-				if tile == 1:
-					img = pygame.transform.scale(FLOOR_IMAGE, (tile_size, tile_size))
-					img_rect = img.get_rect()
-					img_rect.x = col_count * tile_size
-					img_rect.y = row_count * tile_size
-					tile = (img, img_rect)
-					self.tile_list.append(tile)
-				col_count += 1
-			row_count += 1
-
-	def draw(self):
-		for tile in self.tile_list:
-			WIN.blit(tile[0], tile[1])
+    def draw(self):
+        for tile in self.tile_list:
+            WIN.blit(tile[0], tile[1])
 
 
-world_data = [
-    [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
-    [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
-    [0 ,1 ,1 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,1 ,1 ,1],
-    [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
-    [0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0],
-    [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
-    [1 ,1 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,1 ,0 ,0],
-    [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
-    [0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0],
-    [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
-    [1 ,1 ,1 ,1 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
-    [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0]
-]
+class Button():
+    def __init__(self, x, y, img):
+       self.image = img
+       self.rect = self.image.get_rect()
+       self.rect.x = x
+       self.rect.y = y
+       self.clicked = False
 
+    def draw(self):
+        mouse = pygame.mouse.get_pos()
+        isClicked = False
+        if self.rect.collidepoint(mouse):
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False: # if the left mouse is clicked
+                self.clicked = True
+                isClicked = True
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.clicked == False
+        WIN.blit(self.image, self.rect)
+        return isClicked
+
+# button 
+RESTART = pygame.image.load(os.path.join(
+                'assets', 'restart.png'))
+restart = Button(width // 2 - 50, height // 2 + 50 , RESTART)
+
+
+class Exit(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        img = pygame.image.load((os.path.join('assets', 'exit.png')))
+        self.image = pygame.transform.scale(img, (tile_size, int(tile_size)))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        img = pygame.image.load((os.path.join('assets', 'coin.png')))
+        self.image = pygame.transform.scale(img, (tile_size//2, tile_size//2))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+
+class FIRE(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        img = pygame.image.load((os.path.join('assets', 'fire.png')))
+        self.image = pygame.transform.scale(img, (tile_size, tile_size))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+
+
+def create_world(i):
+    if i == 1:
+        world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 3],
+    [0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+    [2, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+    [0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0],
+    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 2],
+    [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
+
+    elif i == 2:
+        world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
+    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2],
+    [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
+
+    elif i == 3:
+        world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [3, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2],
+    [1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
+
+    elif i == 4:
+        world_data =  [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 3],
+    [0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+    [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+    ]
+
+
+    return world_data
+
+        
+num = random.randint(1, 4)
+world_data = create_world(num)
 world = World(world_data)
 
 
-# draw method, we draw everything here: the window, the player, the bullets, the floor
-def draw_window(player):
-    WIN.fill((255, 255, 255))
-    draw_grid() 
-    player.draw(WIN)
-    enemy1.draw(WIN)
-    enemy2.draw(WIN)
-    for bullet in bullets:
-        bullet.draw(WIN)   
+def draw_message(text, font, color, x, y):
+    img = font.render(text, True, color)
+    WIN.blit(img, (x, y))
+
+
+def reset_game():
+    player.reset(0, height - 110, 50, 50)
+    gameover = 0
+    door_group.empty()
+    coin_group.empty()
+    fire_group.empty()
+    num = random.randint(1, 5)
+    world_data = create_world(num)
+    world = World(world_data)
+    return world
+
+
+run = True
+while run:
+    WIN.fill((0,0,0))
     world.draw()
+    player.draw(WIN)
+    
+    if gameover == 0:
+        if pygame.sprite.spritecollide(player, coin_group, True):
+            player.score += 1
+        draw_message('Score: '+str(player.score), font, black, tile_size - 10, 10)
+    
+    door_group.draw(WIN)
+    coin_group.draw(WIN)
+    fire_group.draw(WIN)
+
+    gameover = player.player_movement(gameover)
+
+    if gameover == 1 and score == 6:
+        draw_message('YOU WIN!', font, blue, (width // 2) - 50, height // 2)
+        if restart.draw():
+            restart.clicked = False
+            player.reset(0, height - 110, 50, 50)
+            gameover = 0
+            world = reset_game()
+            
+    if gameover == 1 and score != 6:
+        draw_message('WHERE IS MY COINS?', font, blue, (width // 2) - 120, height // 2)
+        if restart.draw():
+            restart.clicked = False
+            player.reset(0, height - 110, 50, 50)
+            gameover = 0
+            world = reset_game()
+    
+    if gameover == -1:
+        draw_message('YOU LOSE!', font, blue, (width // 2) - 50, height // 2)
+        if restart.draw():
+            restart.clicked = False
+            player.reset(0, height - 110, 50, 50)
+            gameover = 0
+            world = reset_game()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
     pygame.display.update()
-    
-
-# decide the movement of the character    
-def player_movement(keys_pressed, player):      
-    if keys_pressed[pygame.K_LEFT] and player.x > player.vel:
-        player.x -= player.vel
-        player.left = True
-        player.right = False
-    elif keys_pressed[pygame.K_RIGHT] and player.x < WIDTH - player.width - player.vel:
-        player.x += player.vel
-        player.left = False
-        player.right = True
-
-    # JUMP
-    if not (player.isJump):
-        if keys_pressed[pygame.K_UP]:
-            player.isJump = True
-    else:
-        if player.jumpCount >= -8:
-            neg = 1
-            if player.jumpCount < 0:
-                neg = -1
-            player.y -= (player.jumpCount ** 2) * 0.5 * neg
-            player.jumpCount -= 1
-        else:
-            player.isJump = False
-            player.jumpCount = 8
-            
-    # SHOOTING
-    global shootLoop
-    if keys_pressed[pygame.K_SPACE] and shootLoop == 0:
-        if player.left:
-            facing = -1
-        else:
-            facing = 1
-            
-        if len(bullets) < 5:               # allow only 5 bullets existing on the screen at once
-            bullets.append(projectile(round(player.x + player.width //2), 
-                                      round(player.y + player.height //2),
-                                      6, (255, 255, 0), facing))
-            BULLETSOUND.play()
-        shootLoop = 1
 
 
-bullets = []    # where we contain all the bullets
-shootLoop = 0
-def main():
-    global shootLoop
-    clock = pygame.time.Clock()
-    run = True
-    
-    while run:
-        clock.tick(FPS)                         # control the speed of the while loop
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:       # when we want to quit the game
-                run = False
-                
-        if shootLoop > 0:   shootLoop += 1
-        if shootLoop > 3:   shootLoop = 0
-        
-        for bullet in bullets:
-            if bullet.x < WIDTH and bullet.x > 0:
-                bullet.x += bullet.vel  # Moves the bullet by its vel
-            else:
-                bullets.pop(bullets.index(bullet))  # remove the bullet if it is off the screen
-        
-        keys_pressed = pygame.key.get_pressed()     # detect which key is pressed
-        player_movement(keys_pressed, player)       # pass the key to the move function
-        draw_window(player)                         # draw a new object aka the player doge
-    
-    pygame.quit()
-    
-    
-if __name__ == "__main__":
-    main()
+pygame.quit()
