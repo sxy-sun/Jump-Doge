@@ -231,7 +231,7 @@ def create_world(i):
         world_data =  [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 3],
-    [0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
     [2, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
     [0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0],
@@ -326,7 +326,7 @@ while run:
     if gameover == 0:
         if pygame.sprite.spritecollide(player, coin_group, True):
             player.score += 1
-        draw_message('Score: '+str(player.score), font, black, tile_size - 10, 10)
+        draw_message('Score: '+str(player.score), font, (255,255,255), tile_size - 10, 10)
     
     door_group.draw(WIN)
     coin_group.draw(WIN)
@@ -334,21 +334,21 @@ while run:
 
     gameover = player.player_movement(gameover)
 
-    if gameover == 1 and score == 6:
-        draw_message('YOU WIN!', font, blue, (width // 2) - 50, height // 2)
-        if restart.draw():
-            restart.clicked = False
-            player.reset(0, height - 110, 50, 50)
-            gameover = 0
-            world = reset_game()
-            
-    if gameover == 1 and score != 6:
-        draw_message('WHERE IS MY COINS?', font, blue, (width // 2) - 120, height // 2)
-        if restart.draw():
-            restart.clicked = False
-            player.reset(0, height - 110, 50, 50)
-            gameover = 0
-            world = reset_game()
+    if gameover == 1:
+        if player.score == 6:
+            draw_message('YOU WIN!', font, blue, (width // 2) - 50, height // 2)
+            if restart.draw():
+                restart.clicked = False
+                player.reset(0, height - 110, 50, 50)
+                gameover = 0
+                world = reset_game()
+        elif player.score != 6:
+            draw_message('PAY MORE', font, blue, (width // 2) - 55, height // 2)
+            if restart.draw():
+                restart.clicked = False
+                player.reset(0, height - 110, 50, 50)
+                gameover = 0
+                world = reset_game()
     
     if gameover == -1:
         draw_message('YOU LOSE!', font, blue, (width // 2) - 50, height // 2)
