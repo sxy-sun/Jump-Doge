@@ -1,5 +1,7 @@
 # Jump Doge
 
+This is the final project for Introduction to Computer Graphics. Built with Python and Pygame.
+
 **Authors: Qingyang Wang, Xiaoyu Sun**
 
 
